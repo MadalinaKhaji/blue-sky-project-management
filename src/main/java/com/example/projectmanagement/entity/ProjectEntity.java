@@ -8,14 +8,17 @@ import java.util.List;
 
 @Getter
 @Setter
-@Entity
 @Table(name = "project")
+@Entity
 public class ProjectEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     private String name;
+
     private String description;
+
     @OneToMany
     private List<UserEntity> userList;
 }

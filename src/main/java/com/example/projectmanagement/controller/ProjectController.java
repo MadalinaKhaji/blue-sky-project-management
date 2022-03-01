@@ -5,7 +5,7 @@ import com.example.projectmanagement.service.ProjectService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/project")
+@RequestMapping("/api/project")
 public class ProjectController {
     private ProjectService projectService;
 
