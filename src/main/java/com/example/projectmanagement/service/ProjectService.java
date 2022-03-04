@@ -1,6 +1,7 @@
 package com.example.projectmanagement.service;
 
 import com.example.projectmanagement.dto.ProjectDto;
+import com.example.projectmanagement.dto.ProjectPatchNameDto;
 import com.example.projectmanagement.dto.UserDto;
 import com.example.projectmanagement.entity.ProjectEntity;
 import com.example.projectmanagement.repo.ProjectRepository;
@@ -19,13 +20,15 @@ public class ProjectService {
     private ProjectRepository projectRepository;
     private RestTemplate restTemplate;
 
-    @Value("${usermanagement.user.getAllByIds}")
     private String usermanagementGetAllByIdsUrl;
 
-    private ProjectService(ProjectRepository projectRepository,
-                           RestTemplate restTemplate) {
+    public ProjectService(ProjectRepository projectRepository,
+                          RestTemplate restTemplate,
+                          @Value("http://localhost:8081/api/user/all")
+                                  String usermanagementGetAllByIdsUrl) {
         this.projectRepository = projectRepository;
         this.restTemplate = restTemplate;
+        this.usermanagementGetAllByIdsUrl = usermanagementGetAllByIdsUrl;
     }
 
     public ProjectDto createProject(ProjectDto projectDto) {
@@ -36,6 +39,16 @@ public class ProjectService {
     public ProjectDto updateProject(ProjectDto projectDto) {
         ProjectEntity updatedProject = projectRepository.save(mapper.map(projectDto, ProjectEntity.class));
         return mapper.map(updatedProject, ProjectDto.class);
+    }
+
+    public ProjectDto patchProject(ProjectPatchNameDto projectPatchNameDto) {
+        ProjectEntity projectEntity = projectRepository.getById((projectPatchNameDto.getId()));
+
+        projectEntity.setName(projectPatchNameDto.getName());
+
+        ProjectEntity patchedProject = projectRepository.save(projectEntity);
+
+        return mapper.map(patchedProject, ProjectDto.class);
     }
 
     public ProjectDto getProject(Integer id) {

@@ -1,6 +1,7 @@
 package com.example.projectmanagement.controller;
 
 import com.example.projectmanagement.dto.ProjectDto;
+import com.example.projectmanagement.dto.ProjectPatchNameDto;
 import com.example.projectmanagement.service.ProjectService;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,10 +24,9 @@ public class ProjectController {
         return projectService.updateProject(projectDto);
     }
 
-    // patch is different from put
     @PatchMapping
-    public ProjectDto patchProject(@RequestBody ProjectDto projectDto) {
-        return projectService.updateProject(projectDto);
+    public ProjectDto patchProject(@RequestBody ProjectPatchNameDto projectPatchNameDto) {
+        return projectService.patchProject(projectPatchNameDto);
     }
 
     @GetMapping("/{id}")
