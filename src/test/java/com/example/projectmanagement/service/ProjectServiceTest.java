@@ -13,9 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,11 +29,8 @@ class ProjectServiceTest {
     @Mock
     private ProjectRepository projectRepositoryMock;
     @Mock
-    private RestTemplate restTemplateMock;
-
+    private UserService userServiceMock;
     private ProjectService projectService;
-
-    private String usermanagementGetAllByIdsUrl = "someurl";
 
     private ProjectDto generateProjectDto() {
         ProjectDto projectDto = new ProjectDto();
@@ -48,8 +46,7 @@ class ProjectServiceTest {
 
     @BeforeEach
     public void beforeEach() {
-        projectService = new ProjectService(projectRepositoryMock,
-                restTemplateMock, usermanagementGetAllByIdsUrl);
+        projectService = new ProjectService(projectRepositoryMock, userServiceMock);
     }
 
 
@@ -62,6 +59,10 @@ class ProjectServiceTest {
 
         Mockito.when(projectRepositoryMock.save(any())).thenReturn(projectEntity);
 
+        List<Integer> userIdList = projectDto.getUserList().stream().map(UserDto::getId).collect(Collectors.toList());
+
+        Mockito.when(userServiceMock.getByUserIdList(userIdList)).thenReturn(projectDto.getUserList());
+
         ProjectDto savedProject = projectService.createProject(projectDto);
 
         assertEquals(projectDto.getName(), savedProject.getName());
@@ -70,7 +71,6 @@ class ProjectServiceTest {
         UserDto savedUser = savedProject.getUserList().get(0);
 
         assertEquals(projectDto.getUserList().get(0).getId(), savedUser.getId());
-
     }
 
     @Test
@@ -80,6 +80,10 @@ class ProjectServiceTest {
         ProjectEntity projectEntity = mapper.map(projectDto, ProjectEntity.class);
 
         Mockito.when(projectRepositoryMock.save(any())).thenReturn(projectEntity);
+
+        List<Integer> userIdList = projectDto.getUserList().stream().map(UserDto::getId).collect(Collectors.toList());
+
+        Mockito.when(userServiceMock.getByUserIdList(userIdList)).thenReturn(projectDto.getUserList());
 
         ProjectDto savedProject = projectService.updateProject(projectDto);
 
@@ -120,9 +124,10 @@ class ProjectServiceTest {
         Mockito.when(projectRepositoryMock.getById(projectDto.getId()))
                 .thenReturn(projectEntity);
 
-        String url = usermanagementGetAllByIdsUrl + "/" +projectDto.getUserList().get(0).getId();
-        Mockito.when(restTemplateMock.getForObject(url, UserDto[].class))
-                .thenReturn(projectDto.getUserList().toArray(new UserDto[0]));
+        List<Integer> userIdList = projectDto.getUserList().stream().map(UserDto::getId).collect(Collectors.toList());
+
+        Mockito.when(userServiceMock.getByUserIdList(userIdList))
+                .thenReturn(projectDto.getUserList());
 
         ProjectDto getProject = projectService.getProject(1);
 
